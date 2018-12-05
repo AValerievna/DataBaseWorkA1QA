@@ -9,7 +9,7 @@ public class FlipTable {
     private final int[] columnWidths;
     private final int emptyWidth;
 
-    FlipTable(String[] headers, String[][] data) {
+    public FlipTable(String[] headers, String[][] data) {
         this.headers = headers;
         this.data = data;
 

@@ -34,7 +34,7 @@ public class Utils {
         return new FlipTable(headerArray, dataArray).toString();
     }
 
-    static void printResultSetToLog(ResultSet resSet) throws SQLException {
+    public static void printResultSetToLog(ResultSet resSet) throws SQLException {
         log = Logger.getGlobal();
         log.info(NEW_LINE + fromResultSet(resSet));
     }

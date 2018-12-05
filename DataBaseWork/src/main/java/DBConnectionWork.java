@@ -8,7 +8,7 @@ public class DBConnectionWork implements AutoCloseable {
         dbConnection = DriverManager.getConnection(connectionStr, login, password);
     }
 
-    ResultSet getExecutionResult(String query) throws Exception {
+    public ResultSet getExecutionResult(String query) throws Exception {
         Statement stmt = dbConnection.createStatement();
         return stmt.executeQuery(query);
     }
