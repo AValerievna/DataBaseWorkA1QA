@@ -8,10 +8,7 @@ public class DBWork {
 
 
     static Logger log;
-    private final String driverName = "com.mysql.jdbc.Driver";
-    private final String connectionString = "jdbc:mysql://localhost:3306/union_reporting";
-    private final String login = "root";
-    private final String password = "root";
+    static Configuration conf;
 
     private final static String TEST_MIN_TIME_REQUEST = "select p.name PROJECT, t.name TEST, min(t.end_time - t.start_time) MIN_WORKING_TIME\n" +
             "from test t join project p on p.id=t.project_id\n" +
@@ -33,6 +30,7 @@ public class DBWork {
 
     public static void main(String args[]) throws Exception {
         log = Logger.getGlobal();
+        conf = new Configuration();
         DBWork app = new DBWork();
         Connection dbConnection = app.getConnection();
         app.getExecutionResult(dbConnection, TEST_MIN_TIME_REQUEST);
@@ -43,8 +41,8 @@ public class DBWork {
     }
 
     public Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName(driverName);
-        Connection connection = DriverManager.getConnection(connectionString, login, password);
+        Class.forName(conf.getProperty("driver.name"));
+        Connection connection = DriverManager.getConnection(conf.getProperty("connection.string"), conf.getProperty("login"), conf.getProperty("password"));
         return connection;
     }
 
