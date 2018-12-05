@@ -7,6 +7,7 @@ import java.util.logging.Logger;
 public class DBWork {
 
 
+    static Logger log;
     private final String driverName = "com.mysql.jdbc.Driver";
     private final String connectionString = "jdbc:mysql://localhost:3306/union_reporting";
     private final String login = "root";
@@ -31,10 +32,10 @@ public class DBWork {
             "where browser='chrome';\n";
 
     public static void main(String args[]) throws Exception {
-        Logger log = Logger.getGlobal();
+        log = Logger.getGlobal();
         DBWork app = new DBWork();
         Connection dbConnection = app.getConnection();
-        //app.getExecutionResult(dbConnection, TEST_MIN_TIME_REQUEST);
+        app.getExecutionResult(dbConnection, TEST_MIN_TIME_REQUEST);
         app.getExecutionResult(dbConnection, DISTINCT_TESTS_REQUEST);
         app.getExecutionResult(dbConnection, AFTER_DATE_TESTS_REQUEST);
         app.getExecutionResult(dbConnection, BROWSER_TEST_COUNT_REQUEST);
@@ -55,7 +56,7 @@ public class DBWork {
     private ResultSet getExecutionResult(Connection connection, String query) throws Exception {
         Statement stmt = connection.createStatement();
         ResultSet rs = stmt.executeQuery(query);
-        System.out.println(fromResultSet(rs));
+        log.info("\n" + fromResultSet(rs));
         return rs;
     }
 
@@ -67,7 +68,7 @@ public class DBWork {
         ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
         int columnCount = resultSetMetaData.getColumnCount();
         for (int column = 0; column < columnCount; column++) {
-            headers.add(resultSetMetaData.getColumnName(column + 1));
+            headers.add(resultSetMetaData.getColumnLabel(column + 1));
         }
 
         List<String[]> data = new ArrayList<>();

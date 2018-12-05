@@ -22,6 +22,9 @@ public class FlipTable {
                         String.format("Row %s's %s columns != %s columns", row + 1, rowData.length, columns));
             }
             for (int column = 0; column < columns; column++) {
+                if (rowData[column] == null) {
+                    rowData[column] = "NULL";
+                }
                 for (String rowDataLine : rowData[column].split("\\n")) {
                     String rowDataWithoutColor = rowDataLine.replaceAll(ANSI_COLORS, "");
                     columnWidths[column] = Math.max(columnWidths[column], rowDataWithoutColor.length());
@@ -29,7 +32,7 @@ public class FlipTable {
             }
         }
 
-        int emptyWidth = 3 * (columns - 1); // Account for column dividers and their spacing.
+        int emptyWidth = 4 * (columns - 1); // Account for column dividers and their spacing.
         for (int columnWidth : columnWidths) {
             emptyWidth += columnWidth;
         }
@@ -47,7 +50,7 @@ public class FlipTable {
         printData(builder, headers);
         if (data.length == 0) {
             printDivider(builder, "╠═╧═╣");
-            builder.append('║').append(pad(emptyWidth, EMPTY)).append("║\n");
+            //builder.append('║').append(pad(emptyWidth, EMPTY)).append("║\n");
             printDivider(builder, "╚═══╝");
         } else {
             for (int row = 0; row < data.length; row++) {
@@ -62,7 +65,7 @@ public class FlipTable {
     private void printDivider(StringBuilder out, String format) {
         for (int column = 0; column < columns; column++) {
             out.append(column == 0 ? format.charAt(0) : format.charAt(2));
-            out.append(pad(columnWidths[column], "").replace(' ', format.charAt(1)));
+            out.append(pad(columnWidths[column] + 2, "").replace(' ', format.charAt(1)));
         }
         out.append(format.charAt(4)).append('\n');
     }
