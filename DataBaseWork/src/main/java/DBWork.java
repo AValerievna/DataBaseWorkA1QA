@@ -1,14 +1,9 @@
-
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
+import java.sql.ResultSet;
 
 public class DBWork {
 
 
-    static Logger log;
-    static Configuration conf;
+    private static Configuration conf;
 
     private final static String TEST_MIN_TIME_REQUEST = "select p.name PROJECT, t.name TEST, min(t.end_time - t.start_time) MIN_WORKING_TIME\n" +
             "from test t join project p on p.id=t.project_id\n" +
@@ -29,59 +24,17 @@ public class DBWork {
             "where browser='chrome';\n";
 
     public static void main(String args[]) throws Exception {
-        log = Logger.getGlobal();
         conf = new Configuration();
-        DBWork app = new DBWork();
-        Connection dbConnection = app.getConnection();
-        app.getExecutionResult(dbConnection, TEST_MIN_TIME_REQUEST);
-        app.getExecutionResult(dbConnection, DISTINCT_TESTS_REQUEST);
-        app.getExecutionResult(dbConnection, AFTER_DATE_TESTS_REQUEST);
-        app.getExecutionResult(dbConnection, BROWSER_TEST_COUNT_REQUEST);
-        app.closeConnection(dbConnection);
-    }
-
-    public Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName(conf.getProperty("driver.name"));
-        Connection connection = DriverManager.getConnection(conf.getProperty("connection.string"), conf.getProperty("login"), conf.getProperty("password"));
-        return connection;
-    }
-
-    private void closeConnection(Connection connection) throws SQLException {
-        connection.close();
-    }
-
-
-    private ResultSet getExecutionResult(Connection connection, String query) throws Exception {
-        Statement stmt = connection.createStatement();
-        ResultSet rs = stmt.executeQuery(query);
-        log.info("\n" + fromResultSet(rs));
-        return rs;
-    }
-
-    public String fromResultSet(ResultSet resultSet) throws SQLException {
-        if (resultSet == null) throw new NullPointerException("resultSet == null");
-        if (!resultSet.isBeforeFirst()) throw new IllegalStateException("Result set not at first.");
-
-        List<String> headers = new ArrayList<>();
-        ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
-        int columnCount = resultSetMetaData.getColumnCount();
-        for (int column = 0; column < columnCount; column++) {
-            headers.add(resultSetMetaData.getColumnLabel(column + 1));
+        try (DBConnectionWork app = new DBConnectionWork(conf.getProperty("driver.name"), conf.getProperty("connection.string"), conf.getProperty("login"), conf.getProperty("password"))) {
+            ResultSet testMinTimeResult = app.getExecutionResult(TEST_MIN_TIME_REQUEST);
+            Utils.printResultSetToLog(testMinTimeResult);
+            ResultSet distinctTestsResult = app.getExecutionResult(DISTINCT_TESTS_REQUEST);
+            Utils.printResultSetToLog(distinctTestsResult);
+            ResultSet afterDateTestsResult = app.getExecutionResult(AFTER_DATE_TESTS_REQUEST);
+            Utils.printResultSetToLog(afterDateTestsResult);
+            ResultSet browserTestCountResult = app.getExecutionResult(BROWSER_TEST_COUNT_REQUEST);
+            Utils.printResultSetToLog(browserTestCountResult);
         }
-
-        List<String[]> data = new ArrayList<>();
-        while (resultSet.next()) {
-            String[] rowData = new String[columnCount];
-            for (int column = 0; column < columnCount; column++) {
-                rowData[column] = resultSet.getString(column + 1);
-            }
-            data.add(rowData);
-        }
-
-        String[] headerArray = headers.toArray(new String[headers.size()]);
-        String[][] dataArray = data.toArray(new String[data.size()][]);
-        return new FlipTable(headerArray, dataArray).toString();
     }
-
 
 }
